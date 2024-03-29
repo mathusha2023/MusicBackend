@@ -13,6 +13,8 @@ load_dotenv()
 
 user_agent = os.getenv("USER_AGENT")
 token_for_audio = os.getenv("TOKEN_FOR_AUDIO")
+host = os.getenv("HOST")
+port = os.getenv("PORT")
 
 
 @app.route("/vk/search/<name>", methods=["GET"])
@@ -43,4 +45,4 @@ def vk_get(track_name, track_id):
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8080)
+    app.run(host=host, port=port)
