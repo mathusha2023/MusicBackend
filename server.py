@@ -5,6 +5,7 @@ from vkpymusic.utils import get_logger
 from dotenv import load_dotenv
 import os
 import logging
+from tools.get_vk_song_content import get_vk_song_content
 
 app = Flask(__name__)
 logger: logging.Logger = get_logger(__name__)
@@ -41,7 +42,11 @@ def vk_get(track_name, track_id):
             break
     if song is None:
         return make_response(jsonify({"error": f"track with name {track_name} and id {track_id} does not exist"}), 404)
-    return make_response(jsonify(song.to_dict()), 200)
+    content = get_vk_song_content(song)
+    if content is not None:
+        return make_response(content, 200)
+    return make_response(
+        jsonify({"error": f"content of track with name {track_name} and id {track_id} does not exist"}), 404)
 
 
 if __name__ == "__main__":
