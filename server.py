@@ -2,10 +2,12 @@ from flask import Flask, jsonify, make_response
 from vkpymusic import Service
 from vkpymusic.models import Song
 from vkpymusic.utils import get_logger
+from ytmusicapi import YTMusic
 from dotenv import load_dotenv
 import os
 import logging
 from tools.get_vk_song_content import get_vk_song_content
+from tools.create_yt_search_answer import create_yt_search_answer
 
 app = Flask(__name__)
 logger: logging.Logger = get_logger(__name__)
@@ -22,6 +24,8 @@ port = os.getenv("PORT")
 def vk_search(name):
     service = Service(user_agent=user_agent, token=token_for_audio)
     tracks: [Song] = service.search_songs_by_text(name)
+    if tracks is None:
+        return make_response(jsonify([]), 200)
     songs = []
     for song in tracks:
         song = song.to_dict()
@@ -47,6 +51,16 @@ def vk_get(track_name, track_id):
         return make_response(content, 200)
     return make_response(
         jsonify({"error": f"content of track with name {track_name} and id {track_id} does not exist"}), 404)
+
+
+@app.route("/yt/search/<name>", methods=["GET"])
+def yt_search(name):
+    yt = YTMusic()
+    search = yt.search(name, filter="songs")
+    length = len(search)
+    counter = 3 if length >= 3 else length
+    res = [create_yt_search_answer(search[i]) for i in range(counter)]
+    return make_response(jsonify(res), 200)
 
 
 if __name__ == "__main__":
