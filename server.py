@@ -31,6 +31,7 @@ def vk_search(name):
         song = song.to_dict()
         del song["owner_id"]
         del song["url"]
+        song["source"] = "vk"
         songs.append(song)
     return make_response(jsonify(songs), 200)
 
